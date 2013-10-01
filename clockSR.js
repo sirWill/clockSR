@@ -6,8 +6,8 @@ function ClockSR(){
 	
 	var options = {
 		scale:{
-			x:0.4,
-			y:0.4
+			x:1,
+			y:1
 		},
 		center:{
 			x:250,
@@ -68,6 +68,7 @@ function ClockSR(){
 		var xTick, yTick;
 		ctx.lineWidth = 10;
 		ctx.strokeStyle = "#808080"
+
 		ctx.beginPath();
 		xTick = options.center.x + Math.cos( - Math.PI/2 ) * options.radius;
 		yTick = options.center.x + Math.sin( - Math.PI/2 ) * options.radius;
@@ -99,6 +100,41 @@ function ClockSR(){
 		ctx.restore();
 	};
 
+	var drawTicks = function () {
+		ctx.save();
+		ctx.lineWidth = 1;
+		ctx.strokeStyle = "#000";
+		for (var i = 1; i < 61 ; i++){
+			var angle = (i - 15) * (Math.PI * 2) / 60;
+			dx = options.radius * 0.85 * Math.cos(angle);
+			dy = options.radius * 0.85 * Math.sin(angle);
+			if(!(i%15)){
+				ctx.save();
+				ctx.font = '24px Tahoma';
+				ctx.textAlign = 'center';
+				ctx.textBaseline = 'middle';
+				ctx.fillStyle = '#555';
+				ctx.fillText(i/5, options.center.x + dx ,options.center.y + dy);
+				ctx.restore();
+			}
+			else if(!(i%5)){
+				ctx.save();
+				ctx.beginPath();
+				ctx.lineWidth = 4;
+				ctx.arc(options.center.x + dx, options.center.y + dy, 0.5, 0,Math.PI*2);
+				ctx.stroke();
+				ctx.closePath();
+				ctx.restore();
+			}else{
+				ctx.beginPath();
+				ctx.arc(options.center.x + dx, options.center.y + dy, 0.5, 0,Math.PI*2);
+				ctx.stroke();
+				ctx.closePath();
+			}
+		};
+		ctx.restore();
+	}
+
 	var drawNumbers = function () {
 		ctx.save();
 		ctx.font = '28px Tahoma';
@@ -124,8 +160,9 @@ function ClockSR(){
 		ctx.lineWidth = "23";
 		ctx.stroke();
 		ctx.closePath();
-		drawMainTicks();
-		drawNumbers();
+		// drawMainTicks();
+		// drawNumbers();
+		drawTicks();
 		bufferClearClock = ctx.getImageData(0,0,canvas.width,canvas.height);
 		ctx.restore();
 	};
