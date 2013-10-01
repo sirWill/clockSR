@@ -1,7 +1,7 @@
 function ClockSR(){
 
 	this.clockId = "clock_id";
-	this.version = "0.1";
+	this.version = "0.2";
 	this.name = "ClockSR";
 	
 	var options = {
@@ -23,6 +23,7 @@ function ClockSR(){
 	this.now = new Date();
 	
 	var time = {
+		ms:this.now.getMilliseconds(),
 		s:this.now.getSeconds(),
 		m:this.now.getMinutes(),
 		h:this.now.getHours()
@@ -36,15 +37,20 @@ function ClockSR(){
 		hrs:{x:null,y:null},
 		update : function () {
 			that.now = new Date();
+			var asec, amin, ahrs;
+			time.ms = that.now.getMilliseconds();
 			time.s = that.now.getSeconds();
 			time.m = that.now.getMinutes();
 			time.h = that.now.getHours();
-			position.sec.x = options.center.x + Math.cos( Math.PI/30*time.s - Math.PI/2 ) * options.radius * 0.9;
-			position.sec.y = options.center.y + Math.sin( Math.PI/30*time.s - Math.PI/2 ) * options.radius * 0.9;
-			position.min.x = options.center.x + Math.cos( Math.PI/30*time.m - Math.PI/2 ) * options.radius * 0.66;
-			position.min.y = options.center.y + Math.sin( Math.PI/30*time.m - Math.PI/2 ) * options.radius * 0.66;
-			position.hrs.x = options.center.x + Math.cos( Math.PI/12*time.h + Math.PI ) * options.radius * 0.33;
-			position.hrs.y = options.center.y + Math.sin( Math.PI/12*time.h + Math.PI ) * options.radius * 0.33;
+			asec = (time.s + 0.001 * time.ms) * Math.PI * 2 / 60 - Math.PI/2;
+			position.sec.x = options.center.x + Math.cos( asec ) * options.radius * 0.9;
+			position.sec.y = options.center.y + Math.sin( asec ) * options.radius * 0.9;
+			amin = (time.m + (time.s + 0.001 * time.ms)/60) * Math.PI * 2 / 60 - Math.PI/2;
+			position.min.x = options.center.x + Math.cos( amin ) * options.radius * 0.66;
+			position.min.y = options.center.y + Math.sin( amin ) * options.radius * 0.66;
+			ahrs = (time.h + (time.m + time.s/60)/60) * Math.PI * 2 / 12 - Math.PI/2;
+			position.hrs.x = options.center.x + Math.cos( ahrs ) * options.radius * 0.33;
+			position.hrs.y = options.center.y + Math.sin( ahrs ) * options.radius * 0.33;
 		}
 	};//*/	
 
@@ -60,10 +66,8 @@ function ClockSR(){
 	var drawMainTicks = function () {
 		ctx.save();
 		var xTick, yTick;
-		ctx.lineWidth = 3;
-		
+		ctx.lineWidth = 10;
 		ctx.strokeStyle = "#808080"
-		
 		ctx.beginPath();
 		xTick = options.center.x + Math.cos( - Math.PI/2 ) * options.radius;
 		yTick = options.center.x + Math.sin( - Math.PI/2 ) * options.radius;
@@ -95,13 +99,35 @@ function ClockSR(){
 		ctx.restore();
 	};
 
+	var drawNumbers = function () {
+		ctx.save();
+		ctx.font = '28px Tahoma';
+		ctx.textAlign = 'center';
+		ctx.textBaseline = 'middle';
+		ctx.fillStyle = '#555';
+		ctx.moveTo(options.center.x, options.center.y);
+		ctx.beginPath();
+		var angle, dx, dy;
+		for (var i = 1; i <= 12; i++){
+			angle = (i-3) * (Math.PI * 2) / 12;
+			dx = options.radius * 0.75 * Math.cos(angle);
+			dy = options.radius * 0.75 * Math.sin(angle);
+			ctx.fillText(i, options.center.x + dx ,options.center.y + dy);
+		}
+		ctx.restore();
+	};
+
 	var drawClock = function () {
-		ctx.fillStyle = "#000";
+		ctx.save();
+		ctx.strokeStyle = "#3388DE";
 		ctx.arc(options.center.x,options.center.y,options.radius,360,0);
+		ctx.lineWidth = "23";
 		ctx.stroke();
 		ctx.closePath();
 		drawMainTicks();
+		drawNumbers();
 		bufferClearClock = ctx.getImageData(0,0,canvas.width,canvas.height);
+		ctx.restore();
 	};
 
 	var drawSeconds = function (){
@@ -116,33 +142,31 @@ function ClockSR(){
 	var drawMinutes = function () {
 		ctx.save();
 		ctx.beginPath();
+		ctx.lineWidth = "3";
 		ctx.moveTo(options.center.x,options.center.y);
 		ctx.lineTo(position.min.x,position.min.y);
-		ctx.scale(3,3);
 		ctx.stroke();
 		ctx.restore();
 	};
 
 	var drawHours = function () {
 		ctx.save();
+		ctx.lineWidth = "10"
 		ctx.beginPath();
 		ctx.moveTo(options.center.x,options.center.y);
 		ctx.lineTo(position.hrs.x,position.hrs.y);
-		ctx.scale(options.scale.x * 6, options.scale.y * 6);
 		ctx.stroke();
 		ctx.restore();
 	};
 
 	var update = function() {
-		if(buffer)
-			ctx.putImageData(buffer,0,0);
+		// if(buffer)
+			// ctx.putImageData(buffer,0,0);
 		position.update();
-	  if(time.s == 0){
-	  	ctx.putImageData(bufferClearClock,0,0);
-	  	drawMinutes();
-	  	drawHours();
-	  	buffer = ctx.getImageData(0,0,canvas.width,canvas.height);
-	  }
+   	ctx.putImageData(bufferClearClock,0,0);
+  	drawHours();
+  	drawMinutes();
+  	// buffer = ctx.getImageData(0,0,canvas.width,canvas.height);
 	  drawSeconds();
 	};
 
@@ -155,7 +179,7 @@ function ClockSR(){
 		drawMinutes();
 		drawHours();
 		buffer = ctx.getImageData(0,0,canvas.width,canvas.height);
-		setInterval(update,1000);
+		setInterval(update,10);
 	};
 
 	//public methods
