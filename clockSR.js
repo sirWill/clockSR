@@ -121,10 +121,12 @@ function ClockSR(){
 			else if(!(i%5)){
 				ctx.save();
 				ctx.beginPath();
-				ctx.lineWidth = 4;
-				ctx.arc(options.center.x + dx, options.center.y + dy, 0.5, 0,Math.PI*2);
+        			ctx.fillStyle = "#000";
+				ctx.lineWidth = 1;
+				ctx.arc(options.center.x + dx, options.center.y + dy, 2, 0,Math.PI*2);
 				ctx.stroke();
-				ctx.closePath();
+			        ctx.fill();
+        			ctx.closePath();
 				ctx.restore();
 			}else{
 				ctx.beginPath();
