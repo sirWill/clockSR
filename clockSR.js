@@ -60,6 +60,7 @@ function ClockSR(){
 
 	var ctx = canvas.getContext('2d');
 	ctx.transform(options.scale.x,0,0,options.scale.y,0,0);
+	ctx.lineCap = 'round';
 	var bufferClearClock = null;
 	var	buffer = null;
 
