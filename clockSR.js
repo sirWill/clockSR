@@ -173,6 +173,8 @@ function ClockSR(){
 	var drawSeconds = function (){
 		ctx.save();
 		ctx.beginPath();
+		ctx.lineWidth = "1.2";
+		ctx.strokeStyle = "#C00"
 		ctx.moveTo(options.center.x,options.center.y);
 		ctx.lineTo(position.sec.x,position.sec.y);
 		ctx.stroke();
@@ -194,6 +196,7 @@ function ClockSR(){
 		ctx.lineWidth = "10"
 		ctx.beginPath();
 		ctx.moveTo(options.center.x,options.center.y);
+
 		ctx.lineTo(position.hrs.x,position.hrs.y);
 		ctx.stroke();
 		ctx.restore();
